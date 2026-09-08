@@ -13,7 +13,7 @@
 <string>DatamoshCam</string>
 
 <key>CFBundleIdentifier</key>
-<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+<string>com.brotataomcboop.DatamoshCam</string>
 
 <key>CFBundleShortVersionString</key>
 <string>$(MARKETING_VERSION)</string>
