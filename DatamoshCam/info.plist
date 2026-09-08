@@ -38,6 +38,15 @@
 <key>UIApplicationSupportsIndirectInputEvents</key>
 <true/>
 
+<key>CFBundlePackageType</key>
+<string>APPL</string>
+
+<key>CFBundleExecutable</key>
+<string>$(EXECUTABLE_NAME)</string>
+
+<key>CFBundleInfoDictionaryVersion</key>
+<string>6.0</string>
+
 
 </dict>
 </plist>
