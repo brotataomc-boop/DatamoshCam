@@ -13,28 +13,35 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Xcode
+    - name: Set up Xcode Build Context
       run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
-    - name: Compile App via SwiftPM for iOS Device
+    - name: Install XcodeGen
+      run: brew install xcodegen
+
+    - name: Generate True Xcode Project Architecture
+      run: xcodegen generate
+
+    - name: Compile Official iOS App Bundle
       run: |
-        # Builds the executable binary target targeting ARM64 physical architecture 
-        swift build -c release \
-          --triple arm64-apple-ios17.0 \
-          -Xswiftc -sdk -Xswiftc "$(xcrun --sdk iphoneos --show-sdk-path)"
+        # Compiles using Apple's standard compiler pipelines, cleanly linking SwiftUI, Metal, and VideoToolbox
+        xcodebuild -project DatamoshCam.xcodeproj \
+          -scheme DatamoshCam \
+          -sdk iphoneos \
+          -configuration Release \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGNING_REQUIRED=NO \
+          clean build
 
     - name: Package Payload into Sideloadable IPA
       run: |
-        # Creates a clean app container layout mapping exactly to iOS launch specs
-        mkdir -p build/Payload/DatamoshCam.app
+        mkdir -p build/Payload
         
-        # Locates the compiled executable binary from the build cache and transfers it
-        cp .build/arm64-apple-ios17.0/release/DatamoshCamApp build/Payload/DatamoshCam.app/DatamoshCam
+        # Locates the natively built production app folder from the system build logs and clones it into place
+        BUILD_DIR=$(xcodebuild -project DatamoshCam.xcodeproj -scheme DatamoshCam -showBuildSettings -configuration Release | grep -m 1 "TARGET_BUILD_DIR =" | cut -d\'=\' -f2 | xargs)
+        cp -R "$BUILD_DIR/DatamoshCam.app" build/Payload/
         
-        # Copies configuration assets into place
-        cp Info.plist build/Payload/DatamoshCam.app/
-        
-        # Packages into an installer payload
+        # Compresses into an installation file ready for AltStore
         cd build && zip -r DatamoshCam.ipa Payload/
 
     - name: Upload Installer IPA
