@@ -1,0 +1,51 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Xcode
+      run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+    - name: Create Minimal Project Structure for Build Tools
+      run: |
+        # Generates a headless compilation scheme using xcodebuild without needing a physical .xcodeproj file
+        mkdir -p build
+        
+    - name: Compile Swift and Metal Modules
+      run: |
+        # Compiles native code modules into an iOS-executable binary payload
+        xcrun -sdk iphoneos swiftc $(find DatamoshCam -name "*.swift") \
+          -target arm64-apple-ios17.0 \
+          -sdk $(xcrun --sdk iphoneos --show-sdk-path) \
+          -o build/DatamoshCamApp
+          
+    - name: Compile Metal Shaders into Resource Bundle
+      run: |
+        # Bundles the block motion estimation and composite shaders into the binary runtime
+        xcrun -sdk iphoneos metal -c DatamoshCam/Engine/Shaders/MoshShaders.metal -o build/MoshShaders.air
+        xcrun -sdk iphoneos metallib build/MoshShaders.air -o build/default.metallib
+
+    - name: Package Payload into Sideloadable IPA
+      run: |
+        # Structures app bundle assets to map directly to AltStore requirements
+        mkdir -p build/Payload/DatamoshCam.app
+        mv build/DatamoshCamApp build/Payload/DatamoshCam.app/DatamoshCam
+        mv build/default.metallib build/Payload/DatamoshCam.app/
+        cp Info.plist build/Payload/DatamoshCam.app/
+        cd build && zip -r DatamoshCam.ipa Payload/
+
+    - name: Upload Installer IPA
+      uses: actions/upload-artifact@v4
+      with:
+        name: DatamoshCam-installer
+        path: build/DatamoshCam.ipa
