@@ -1,0 +1,13 @@
+name: DatamoshCam
+options:
+  bundleIdPrefix: com.yourname
+targets:
+  DatamoshCam:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources: [DatamoshCam]
+    settings:
+      INFOPLIST_FILE: DatamoshCam/info.plist
+      MARKETING_VERSION: 1.0
+      CURRENT_PROJECT_VERSION: 1
