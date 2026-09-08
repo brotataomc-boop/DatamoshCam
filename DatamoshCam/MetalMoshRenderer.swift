@@ -1,8 +1,8 @@
+import Foundation
 import Metal
 import MetalKit
-import MetalPerformanceShaders
-import CoreVideo
-import simd
+import AVFoundation
+import CoreMedia
 
 /// The primary, real-time "logical codec engine."
 ///
