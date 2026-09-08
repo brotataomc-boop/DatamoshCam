@@ -8,7 +8,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>DatamoshCam</string>
 
-```
+
 <key>CFBundleName</key>
 <string>DatamoshCam</string>
 
@@ -37,7 +37,7 @@
 
 <key>UIApplicationSupportsIndirectInputEvents</key>
 <true/>
-```
+
 
 </dict>
 </plist>
