@@ -1,6 +1,7 @@
-import Foundation
+import SwiftUI
 import Metal
 import MetalKit
+import MetalPerformanceShaders
 import AVFoundation
 import CoreMedia
 
