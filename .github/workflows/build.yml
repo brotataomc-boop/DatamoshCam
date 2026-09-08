@@ -36,13 +36,20 @@ jobs:
     - name: Package Payload into Sideloadable IPA
       run: |
         mkdir -p build/Payload
-        
-        # Locates the natively built production app folder from the system build logs and clones it into place
-        BUILD_DIR=$(xcodebuild -project DatamoshCam.xcodeproj -scheme DatamoshCam -showBuildSettings -configuration Release | grep -m 1 "TARGET_BUILD_DIR =" | cut -d\'=\' -f2 | xargs)
-        cp -R "$BUILD_DIR/DatamoshCam.app" build/Payload/
-        
-        # Compresses into an installation file ready for AltStore
-        cd build && zip -r DatamoshCam.ipa Payload/
+
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type d -path "*/Build/Products/Release-iphoneos/DatamoshCam.app" -print -quit)
+
+        if [ -z "$APP_PATH" ]; then
+          echo "ERROR: DatamoshCam.app was not found."
+          find ~/Library/Developer/Xcode/DerivedData -type d -name "*.app" -print
+          exit 1
+        fi
+
+        echo "Found app at: $APP_PATH"
+        cp -R "$APP_PATH" build/Payload/
+
+        cd build
+        zip -r DatamoshCam.ipa Payload/
 
     - name: Upload Installer IPA
       uses: actions/upload-artifact@v4
